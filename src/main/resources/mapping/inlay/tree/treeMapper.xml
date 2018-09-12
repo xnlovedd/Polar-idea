@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="polar.island.inlay.tree.dao.TreeDao">
+	<!-- 列表的列名 -->
+	<sql id="listColumns">
+			a.id AS "id",
+			a.groupId AS "groupId",
+			a.groupName AS "groupName",
+			a.text AS "text",
+			a.value AS "value",
+			a.textAlias AS "textAlias",
+			a.textId AS "textId",
+			a.parentId AS "parentId",
+			a.type AS "type"
+	</sql>
+	<!-- 详情的列名 -->
+	<sql id="detailColumns">
+			a.id AS "id",
+			a.groupId AS "groupId",
+			a.groupName AS "groupName",
+			a.text AS "text",
+			a.value AS "value",
+			a.textAlias AS "textAlias",
+			a.textId AS "textId",
+			a.parentId AS "parentId",
+			a.type AS "type"
+	</sql>
+	<!-- 表名,可能查询时会和一些其他的表关联 -->
+	<sql id="tables">
+		t_polar_tree a
+	</sql>
+	<!-- 表名 -->
+	<sql id="table">
+		t_polar_tree
+	</sql>
+	<!-- 查询多条数据时的条件 -->
+	<sql id="searchMultiWheres">
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id=#{id}
+			</if>
+			<if test="groupId != null and groupId != ''">
+				AND a.groupId=#{groupId}
+			</if>
+			<if test="groupName != null and groupName != ''">
+				AND a.groupName=#{groupName}
+			</if>
+			<if test="text != null and text != ''">
+				AND a.text=#{text}
+			</if>
+			<if test="value != null and value != ''">
+				AND a.value=#{value}
+			</if>
+			<if test="textAlias != null and textAlias != ''">
+				AND a.textAlias=#{textAlias}
+			</if>
+			<if test="textId != null and textId != ''">
+				AND a.textId=#{textId}
+			</if>
+			<if test="parentId != null and parentId != ''">
+				AND a.parentId=#{parentId}
+			</if>
+			<if test="type != null">
+				AND a.type=#{type}
+			</if>
+		</where>
+	</sql>
+	<!-- 查询单条数据时的条件 -->
+	<sql id="searchOneWheres">
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id=#{id}
+			</if>
+			<if test="groupId != null and groupId != ''">
+				AND a.groupId=#{groupId}
+			</if>
+			<if test="groupName != null and groupName != ''">
+				AND a.groupName=#{groupName}
+			</if>
+			<if test="text != null and text != ''">
+				AND a.text=#{text}
+			</if>
+			<if test="value != null and value != ''">
+				AND a.value=#{value}
+			</if>
+			<if test="textAlias != null and textAlias != ''">
+				AND a.textAlias=#{textAlias}
+			</if>
+			<if test="textId != null and textId != ''">
+				AND a.textId=#{textId}
+			</if>
+			<if test="parentId != null and parentId != ''">
+				AND a.parentId=#{parentId}
+			</if>
+			<if test="type != null">
+				AND a.type=#{type}
+			</if>
+		</where>
+	</sql>	
+	<!-- 排序条件 -->
+	<sql id="orderCondition">
+		<choose>
+			<when test="sort !=null and sort !=''">
+				order by
+				<choose>
+					<when test="sort=='groupId'">a.groupId ${order}</when>
+					<when test="sort=='groupName'">a.groupName ${order}</when>
+					<when test="sort=='text'">a.text ${order}</when>
+					<when test="sort=='value'">a.value ${order}</when>
+					<when test="sort=='textId'">a.textId ${order}</when>
+					<when test="sort=='textAlias'">a.textAlias ${order}</when>
+					<when test="sort=='parentId'">a.parentId ${order}</when>
+					<when test="sort=='type'">a.type ${order}</when>
+					<!--默认排序，条件都不满足时，使用此条件，其兼容sqlserver的排序 -->
+					<otherwise>(select 0)</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						order by (SELECT 0)
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+	</sql>
+	<!-- 删除条件(物理删除的删除条件) -->
+	<sql id="deletePhysicalWheres">
+		WHERE 1!=1
+		<trim prefix="OR" prefixOverrides="AND">
+			<if test="id != null and id != ''">
+				AND a.id=#{id}
+			</if>
+				<if test="groupId != null and groupId != ''">
+					AND a.groupId=#{groupId}
+				</if>
+				<if test="groupName != null and groupName != ''">
+					AND a.groupName=#{groupName}
+				</if>
+				<if test="text != null and text != ''">
+					AND a.text=#{text}
+				</if>
+				<if test="value != null and value != ''">
+					AND a.value=#{value}
+				</if>
+				<if test="textAlias != null and textAlias != ''">
+					AND a.textAlias=#{textAlias}
+				</if>
+				<if test="textId != null and textId != ''">
+					AND a.textId=#{textId}
+				</if>
+				<if test="parentId != null and parentId != ''">
+					AND a.parentId=#{parentId}
+				</if>
+				<if test="type != null">
+					AND a.type=#{type}
+				</if>
+		</trim>
+	</sql>
+	<insert id="insert" parameterType="java.util.Map"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		<include refid="table" />
+		(
+
+			groupId,
+			groupName,
+			text,
+			value,
+			textAlias,
+			textId,
+			parentId,
+			type
+		) VALUES (
+
+			#{groupId},
+			#{groupName},
+			#{text},
+			#{value},
+			#{textAlias},
+			#{textId},
+			#{parentId},
+			#{type}
+		)
+	</insert>
+	<!-- 查询一条数据(依据数据编号) -->
+	<select id="selectOneById" resultType="TreeEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		where a.id=#{id}
+	</select>
+	<!-- 查询一条数据（依据查询条件） -->
+	<select id="selectOneByCondition" resultType="TreeEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchOneWheres" />
+	</select>
+	<!-- 查询集合 -->
+	<select id="selectList" resultType="TreeEntity"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="listColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+		<include refid="orderCondition" />
+	</select>
+	<!-- 查询带有分页的列表 -->
+	<select id="selectPageList" resultType="TreeEntity"
+		parameterType="java.util.Map">
+		<choose>
+			<when test="'${polar_dataBaseType}' == 'oracle'">
+				SELECT * FROM (
+				select rownum rowsize,innertable.* from
+				(
+				SELECT <include refid="listColumns" />
+				FROM <include refid="tables" />
+				<include refid="searchMultiWheres" />
+				<include refid="orderCondition" />
+				) innertable
+				)
+				WHERE rowsize > #{pageStartNumber} and rowsize &lt;= #{pageOffsetNumber}
+			</when>
+			<when test="'${polar_dataBaseType}' == 'sqlServer'">
+				SELECT TOP ${rows} A.*
+				FROM
+				(
+				SELECT
+				ROW_NUMBER() OVER (<include refid="orderCondition" />) AS RowNumber,
+				<include refid="listColumns" />
+				FROM <include refid="tables" />
+				<include refid="searchMultiWheres" />
+				)   as A
+				WHERE RowNumber > #{pageStartNumber}
+			</when>
+			<otherwise>
+				SELECT
+				<include refid="listColumns" />
+				FROM
+				<include refid="tables" />
+				<include refid="searchMultiWheres" />
+				<include refid="orderCondition" />
+				limit #{pageStartNumber},#{pageOffsetNumber}
+			</otherwise>
+		</choose>
+	</select>
+	<!-- 依据条件查询符合条件的数量 -->
+	<select id="selectCount" resultType="long" parameterType="java.util.Map">
+		SELECT count(a.id)
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+	</select>
+	<!-- 依据编号更新数据，所有字段都更新。 -->
+	<update id="updateAll" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		set
+			groupId=#{groupId},
+			groupName=#{groupName},
+			text=#{text},
+			value=#{value},
+			textAlias=#{textAlias},
+			textId=#{textId},
+			parentId=#{parentId},
+			type=#{type}
+		where id=#{id}
+	</update>
+	<!-- 依据编号更新数据，更新存在的字段,有效性字段也可更新。 -->
+	<update id="updateField" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		<trim prefix="set" prefixOverrides=",">
+				<if test="_parameter.containsKey('groupId')">
+					,groupId=#{groupId}
+				</if>
+				<if test="_parameter.containsKey('groupName')">
+					,groupName=#{groupName}
+				</if>
+				<if test="_parameter.containsKey('text')">
+					,text=#{text}
+				</if>
+				<if test="_parameter.containsKey('value')">
+					,value=#{value}
+				</if>
+				<if test="_parameter.containsKey('textAlias')">
+					,textAlias=#{textAlias}
+				</if>
+				<if test="_parameter.containsKey('textId')">
+					,textId=#{textId}
+				</if>
+				<if test="_parameter.containsKey('parentId')">
+					,parentId=#{parentId}
+				</if>
+				<if test="_parameter.containsKey('type')">
+					,type=#{type}
+				</if>
+		</trim>
+		where id=#{id}
+	</update>
+	<!-- 依据编号物理删除 -->
+	<delete id="deleteByIdPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		where id=#{id}
+	</delete>
+	<!-- 依据条件物理删除 -->
+	<delete id="deleteByConditionPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		<include refid="deletePhysicalWheres" />
+	</delete>
+	<!-- 查询所有的组信息 -->
+	<select id="allGroups" resultType="polar.island.core.entity.DictEntity" >
+		select DISTINCT groupName AS "text",groupId AS "value" from <include refid="table" />
+		order by groupName asc
+	</select>
+	<!-- 查询所有的组信息 -->
+	<select id="getTree" resultType="TreeEntity" >
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		where a.groupId=#{groupId} 
+		order by cast(value as SIGNED INTEGER) asc
+	</select>
+</mapper>

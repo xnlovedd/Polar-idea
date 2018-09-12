@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="polar.island.inlay.user.dao.UserDao">
+	<!-- 列表的列名 -->
+	<sql id="listColumns">
+			a.id AS "id",
+			a.userName AS "userName",
+			a.password AS "password",
+			a.logCount AS "logCount",
+			a.headUrl AS "headUrl",
+			a.nickName AS "nickName",
+			a.logInIp AS "logInIp",
+			a.createDate AS "createDate",
+			a.phone AS "phone",
+			a.email AS "email",
+			a.state AS "state",
+			a.logInDate AS "logInDate",
+			a.org_id AS "orgId"
+	</sql>
+	<!-- 详情的列名 -->
+	<sql id="detailColumns">
+			a.id AS "id",
+			a.userName AS "userName",
+			a.password AS "password",
+			a.logCount AS "logCount",
+			a.headUrl AS "headUrl",
+			a.nickName AS "nickName",
+			a.logInIp AS "logInIp",
+			a.createDate AS "createDate",
+			a.phone AS "phone",
+			a.email AS "email",
+			a.state AS "state",
+			a.logInDate AS "logInDate",
+			a.org_id AS "orgId"
+	</sql>
+	<!-- 表名,可能查询时会和一些其他的表关联 -->
+	<sql id="tables">
+		t_polar_user a
+	</sql>
+	<!-- 表名 -->
+	<sql id="table">
+		t_polar_user
+	</sql>
+	<!-- 查询多条数据时的条件 -->
+	<sql id="searchMultiWheres">
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id=#{id}
+			</if>
+			<if test="orgId != null and orgId != ''">
+				AND a.org_id=#{orgId}
+			</if>
+			<if test="state != null ">
+				AND a.state=#{state}
+			</if>
+			<if test="userName != null and userName != ''">
+				AND a.userName like
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{userName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{userName},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="password != null and password != ''">
+				AND a.password=#{password}
+			</if>
+			<if test="logCount != null">
+				AND a.logCount=#{logCount}
+			</if>
+			<if test="headUrl != null and headUrl != ''">
+				AND a.headUrl=#{headUrl}
+			</if>
+			<if test="nickName != null and nickName != ''">
+				AND a.nickName like
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{nickName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{nickName},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="logInIp != null and logInIp != ''">
+				AND a.logInIp=#{logInIp}
+			</if>
+			<if test="createDate != null">
+				AND a.createDate &gt; #{createDate}
+			</if>
+			<if test="logInDate != null">
+				AND a.logInDate &gt; #{logInDate}
+			</if>
+			<if test="phone != null and phone != ''">
+				AND a.phone like
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{phone}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{phone},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="email != null and email != ''">
+				AND a.email like
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{email}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{email},'%')
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+	</sql>
+	<!-- 查询单条数据时的条件 -->
+	<sql id="searchOneWheres">
+		<where>
+			<if test="orgId != null and orgId != ''">
+				AND a.org_id=#{orgId}
+			</if>
+			<if test="id != null and id != ''">
+				AND a.id=#{id}
+			</if>
+			<if test="state != null">
+				AND a.state=#{state}
+			</if>
+			<if test="userName != null and userName != ''">
+				AND a.userName=#{userName}
+			</if>
+			<if test="password != null and password != ''">
+				AND a.password=#{password}
+			</if>
+			<if test="logCount != null">
+				AND a.logCount=#{logCount}
+			</if>
+			<if test="headUrl != null and headUrl != ''">
+				AND a.headUrl=#{headUrl}
+			</if>
+			<if test="nickName != null and nickName != ''">
+				AND a.nickName=#{nickName}
+			</if>
+			<if test="logInIp != null and logInIp != ''">
+				AND a.logInIp=#{logInIp}
+			</if>
+			<if test="createDate != null">
+				AND a.createDate=#{createDate}
+			</if>
+			<if test="phone != null and phone != ''">
+				AND a.phone=#{phone}
+			</if>
+			<if test="email != null and email != ''">
+				AND a.email=#{email}
+			</if>
+		</where>
+	</sql>	
+	<!-- 排序条件 -->
+	<sql id="orderCondition">
+		<choose>
+			<when test="sort !=null and sort !=''">
+				order by
+				<choose>
+					<when test="sort=='userName'">a.userName ${order}</when>
+					<when test="sort=='state'">a.state ${order}</when>
+					<when test="sort=='logCount'">a.logCount ${order}</when>
+					<when test="sort=='nickName'">a.nickName ${order}</when>
+					<when test="sort=='logInIp'">a.logInIp ${order}</when>
+					<when test="sort=='createDate'">a.createDate ${order}</when>
+					<when test="sort=='logInDate'">a.logInDate ${order}</when>
+					<when test="sort=='phone'">a.phone ${order}</when>
+					<!--默认排序，条件都不满足时，使用此条件，其兼容sqlserver的排序 -->
+					<otherwise>(select 0)</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						order by (SELECT 0)
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+	</sql>
+	<!-- 删除条件(物理删除的删除条件) -->
+	<sql id="deletePhysicalWheres">
+		WHERE 1!=1
+		<trim prefix="OR" prefixOverrides="AND">
+				<if test="state != null">
+					AND a.state=#{state}
+				</if>
+				<if test="id != null and id != ''">
+					AND a.id=#{id}
+				</if>
+				<if test="orgId != null and orgId != ''">
+					AND a.org_id=#{orgId}
+				</if>
+				<if test="userName != null and userName != ''">
+					AND a.userName=#{userName}
+				</if>
+				<if test="password != null and password != ''">
+					AND a.password=#{password}
+				</if>
+				<if test="logCount != null">
+					AND a.logCount=#{logCount}
+				</if>
+				<if test="headUrl != null and headUrl != ''">
+					AND a.headUrl=#{headUrl}
+				</if>
+				<if test="nickName != null and nickName != ''">
+					AND a.nickName=#{nickName}
+				</if>
+				<if test="logInIp != null and logInIp != ''">
+					AND a.logInIp=#{logInIp}
+				</if>
+				<if test="createDate != null">
+					AND a.createDate=#{createDate}
+				</if>
+				<if test="phone != null and phone != ''">
+					AND a.phone=#{phone}
+				</if>
+				<if test="email != null and email != ''">
+					AND a.email=#{email}
+				</if>
+		</trim>
+	</sql>
+	<!-- 逻辑删除条件(逻辑删除的删除条件，比物理删除缺少数据有效性字段) -->
+	<sql id="deleteLogicWheres">
+		WHERE 1!=1
+		<trim prefix="OR" prefixOverrides="AND">
+			<if test="id != null and id != ''">
+				AND a.id=#{id}
+			</if>
+				<if test="userName != null and userName != ''">
+					AND a.userName=#{userName}
+				</if>
+				<if test="orgId != null and orgId != ''">
+					AND a.org_id=#{orgId}
+				</if>
+				<if test="password != null and password != ''">
+					AND a.password=#{password}
+				</if>
+				<if test="logCount != null">
+					AND a.logCount=#{logCount}
+				</if>
+				<if test="headUrl != null and headUrl != ''">
+					AND a.headUrl=#{headUrl}
+				</if>
+				<if test="nickName != null and nickName != ''">
+					AND a.nickName=#{nickName}
+				</if>
+				<if test="logInIp != null and logInIp != ''">
+					AND a.logInIp=#{logInIp}
+				</if>
+				<if test="createDate != null">
+					AND a.createDate=#{createDate}
+				</if>
+				<if test="phone != null and phone != ''">
+					AND a.phone=#{phone}
+				</if>
+				<if test="email != null and email != ''">
+					AND a.email=#{email}
+				</if>
+		</trim>
+	</sql>
+	<!-- 逻辑删除时，执行的字段，将有效性字段设置为无效 -->
+	<sql id="deleteLogicSql">
+		set state=0
+	</sql>
+	<insert id="insert" parameterType="java.util.Map"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		<include refid="table" />
+		(
+
+			userName,
+			password,
+			logCount,
+			headUrl,
+			nickName,
+			logInIp,
+			createDate,
+			phone,
+			email,
+			state,
+			org_id
+		) VALUES (
+
+			#{userName},
+			#{password},
+			#{logCount},
+			#{headUrl},
+			#{nickName},
+			#{logInIp},
+			#{createDate},
+			#{phone},
+			#{email},
+			#{state},
+			#{orgId}
+		)
+	</insert>
+	<!-- 查询一条数据(依据数据编号) -->
+	<select id="selectOneById" resultType="userEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		where a.id=#{id}
+	</select>
+	<!-- 查询一条数据（依据查询条件） -->
+	<select id="selectOneByCondition" resultType="userEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchOneWheres" />
+	</select>
+	<!-- 查询集合 -->
+	<select id="selectList" resultType="userEntity"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="listColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+		<include refid="orderCondition" />
+	</select>
+	<!-- 查询导出数据 -->
+	<select id="selectExportList" resultType="userEntity"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+		<include refid="orderCondition" />
+	</select>
+	<!-- 查询带有分页的列表 -->
+	<select id="selectPageList" resultType="userEntity"
+		parameterType="java.util.Map">
+		<choose>
+			<when test="'${polar_dataBaseType}' == 'oracle'">
+				SELECT * FROM (
+				select rownum rowsize,innertable.* from
+				(
+				SELECT <include refid="listColumns" />
+				FROM <include refid="tables" />
+				<include refid="searchMultiWheres" />
+				<include refid="orderCondition" />
+				) innertable
+				)
+				WHERE rowsize > #{pageStartNumber} and rowsize &lt;= #{pageOffsetNumber}
+			</when>
+			<when test="'${polar_dataBaseType}' == 'sqlServer'">
+				SELECT TOP ${rows} A.*
+				FROM
+				(
+				SELECT
+				ROW_NUMBER() OVER (<include refid="orderCondition" />) AS RowNumber,
+				<include refid="listColumns" />
+				FROM <include refid="tables" />
+				<include refid="searchMultiWheres" />
+				)   as A
+				WHERE RowNumber > #{pageStartNumber}
+			</when>
+			<otherwise>
+				SELECT
+				<include refid="listColumns" />
+				FROM
+				<include refid="tables" />
+				<include refid="searchMultiWheres" />
+				<include refid="orderCondition" />
+				limit #{pageStartNumber},#{pageOffsetNumber}
+			</otherwise>
+		</choose>
+	</select>
+	<!-- 依据条件查询符合条件的数量 -->
+	<select id="selectCount" resultType="long" parameterType="java.util.Map">
+		SELECT count(a.id)
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+	</select>
+	<!-- 依据编号更新数据，所有字段都更新。 -->
+	<update id="updateAll" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		set
+			userName=#{userName},
+			headUrl=#{headUrl},
+			nickName=#{nickName},
+			phone=#{phone},
+			email=#{email},
+			org_id=#{orgId}
+		where id=#{id}
+	</update>
+	<update id="updateSelf" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		set
+		userName=#{userName},
+		headUrl=#{headUrl},
+		nickName=#{nickName},
+		phone=#{phone},
+		email=#{email}
+		where id=#{id}
+	</update>
+	<!-- 依据编号更新数据，更新存在的字段,有效性字段也可更新。 -->
+	<update id="updateField" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		<trim prefix="set" prefixOverrides=",">
+				<if test="_parameter.containsKey('state')">
+					,state=#{state}
+				</if>
+				<if test="_parameter.containsKey('userName')">
+					,userName=#{userName}
+				</if>
+				<if test="_parameter.containsKey('password')">
+					,password=#{password}
+				</if>
+				<if test="_parameter.containsKey('logCount')">
+					,logCount=#{logCount}
+				</if>
+				<if test="_parameter.containsKey('headUrl')">
+					,headUrl=#{headUrl}
+				</if>
+				<if test="_parameter.containsKey('nickName')">
+					,nickName=#{nickName}
+				</if>
+				<if test="_parameter.containsKey('logInIp')">
+					,logInIp=#{logInIp}
+				</if>
+				<if test="_parameter.containsKey('createDate')">
+					,createDate=#{createDate}
+				</if>
+				<if test="_parameter.containsKey('phone')">
+					,phone=#{phone}
+				</if>
+				<if test="_parameter.containsKey('email')">
+					,email=#{email}
+				</if>
+		</trim>
+		where id=#{id}
+	</update>
+	<!-- 依据编号物理删除 -->
+	<delete id="deleteByIdPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		where id=#{id};
+		DELETE  from t_polar_user_menu where userId=#{id};
+		DELETE  from t_polar_user_role where userId=#{id};
+	</delete>
+	<!-- 依据编号逻辑删除 -->
+	<update id="deleteByIdLogic" parameterType="string">
+		update
+		<include refid="table" />
+		<include refid="deleteLogicSql" />
+		where id=#{id}
+	</update>
+	<!-- 依据条件物理删除 -->
+	<delete id="deleteByConditionPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		<include refid="deletePhysicalWheres" />
+	</delete>
+	<!-- 依据条件逻辑删除 -->
+	<update id="deleteByConditionLogic" parameterType="string">
+		update
+		<include refid="table" />
+		<include refid="deleteLogicSql" />
+		<include refid="deleteLogicWheres" />
+	</update>
+	<update id="logIn" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		set logCount=logCount+1,logInIp=#{host},logInDate=#{logInDate}
+		where id=#{id}
+	</update>
+	<select id="userRoles" parameterType="java.util.Map" resultType="string">
+		select a.name 
+		from t_polar_role a left join t_polar_user_role b on(a.id = b.roleId)
+		where b.userId=#{userId}
+	</select>
+	<select id="userPermissions" parameterType="java.util.Map" resultType="string">
+		select a.name
+		from t_polar_permission a left join t_polar_role_permission b on(a.id=b.permissionId) 
+		left join t_polar_user_role c on(b.roleId=c.roleId) 
+		where c.userId=#{userId}
+	</select>
+	<select id="orgPermissions" parameterType="java.util.Map" resultType="string">
+		select a.name
+		from t_polar_permission a left join t_polar_org_permission b on(a.id=b.permissionId)
+		left join t_polar_user c on(b.orgId=c.org_id)
+		where c.id=#{userId}
+	</select>
+	<update id="disableUser" parameterType="string">
+		update
+		<include refid="table" />
+		set state=0
+		where id=#{id}
+	</update>
+	<update id="enableUser" parameterType="string">
+		update
+		<include refid="table" />
+		set state=1
+		where id=#{id}
+	</update>
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="polar.island.database.AttachmentDao">
+
+	<insert id="insert" parameterType="polar.island.core.entity.AttachmentEntity"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		t_polar_attachment
+		(
+			visitPath,
+			attachmentId,
+			typeStr,
+			createDate,
+			createDateMillions,
+			pid
+		) VALUES (
+			#{visitPath},
+			#{attachmentId},
+			#{type},
+			#{createDate},
+			#{createDateMillions},
+			#{pid}
+		)
+	</insert>
+	<delete id="deleteAttachment" parameterType="string">
+		delete from t_polar_attachment
+		where typeStr=#{type} and attachmentId=#{attachmentId}
+	</delete>
+	<delete id="deleteAttachmentByPid" parameterType="string">
+		delete from t_polar_attachment
+		where typeStr=#{type} and pid=#{pid}
+	</delete>
+	<select id="selectAttachment" parameterType="string" resultType="string">
+		SELECT visitPath from t_polar_attachment
+		where typeStr=#{type} and attachmentId=#{attachmentId}
+		ORDER BY createDateMillions ASC
+	</select>
+</mapper>

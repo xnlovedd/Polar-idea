@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>bpmn-js modeler demo</title>
+
+  <link rel="stylesheet" href="css/diagram-js.css" />
+  <link rel="stylesheet" href="vendor/bpmn-font/css/bpmn-embedded.css" />
+  <link rel="stylesheet" href="css/app.css" />
+  <script type="text/javascript" src="../jquery/jquery.min.js"></script>
+</head>
+<body>
+<button id="test" value="123123"></button>
+<div class="modeler content with-diagram" >
+  <div id="canvas" class="canvas "></div>
+  <div id="properties" class="properties-panel-parent"></div>
+</div>
+</body>
+  <script src="index.js"></script>
+   <script >
+     $(function(){
+         var bpmn=$BPMN({
+             canvas:"#canvas",
+             propertiesPanel:"#properties",
+             container:".modeler"
+         });
+         bpmn.create();
+
+         $("#test").click(function () {
+             bpmn.saveXml(function (err, xml) {
+                 console.log(err);
+                 console.log(xml);
+             });
+         });
+     });
+
+   </script>
+</html>

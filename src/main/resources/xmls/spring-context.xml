@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/cache  http://www.springframework.org/schema/cache/spring-cache-3.1.xsd">
+	<context:component-scan base-package="com.**">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<context:component-scan base-package="cn.**">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<context:component-scan base-package="polar.**">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<context:property-placeholder
+		ignore-unresolvable="true" location="classpath:config/config.properties" />
+	<import resource="spring-db.xml" />
+
+
+	<!-- 使用redis缓存 -->
+	<!--  <cache:annotation-driven cache-manager="redisCacheManager"
+		proxy-target-class="true" />   -->
+	<!-- 自定义的redis缓存 -->
+	<cache:annotation-driven cache-manager="redisSpringCacheManager"/>  	
+		
+	<!-- 使用 ehCacheManager-->
+<!-- 	<cache:annotation-driven cache-manager="ehCacheManager"
+		proxy-target-class="true" />  -->
+	<!-- 缓存配置 -->
+ 	<bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+		<property name="cacheManager" ref="ehCacheManagerFactory"></property>
+	</bean> 
+
+	<bean id="ehCacheManagerFactory"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:cache/ehcache.xml"></property>
+	</bean>
+
+	<bean
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="staticMethod" value="polar.island.web.util.DictUtil.setServices" />
+		<property name="arguments">
+			<list>
+				<ref bean="treeService"></ref>
+				<ref bean="dictService"></ref>
+				<ref bean="roleService"></ref>
+				<ref bean="permissionService"></ref>
+				<ref bean="menuService"></ref>
+			</list>
+		</property>
+	</bean>
+	<bean name="handlerMapping" 
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+		<property name="useTrailingSlashMatch" value="false"></property>
+		<property name="useSuffixPatternMatch" value="false"></property>
+	</bean>
+	<import resource="spring-shiro.xml" />
+	<!-- jedis配置，打开此处时，可以修改shiro的缓存路径 -->
+	<import resource="spring-jedis.xml" />   
+</beans>

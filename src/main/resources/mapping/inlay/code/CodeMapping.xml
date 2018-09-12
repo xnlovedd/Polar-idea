@@ -1,0 +1,987 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="polar.island.inlay.code.dao.CodeDao">
+	<!-- 列表的列名 -->
+	<sql id="listColumns">
+	a.id AS "id",
+		a.tableType AS "tableType",
+		a.parentField AS "parentField",
+		a.childField AS "childField",
+		a.nameField AS "nameField",
+		a.valueField AS "valueField",
+		a.parentTableId AS "parentTableId",
+		a.childTableField AS "childTableField",
+		a.tableName AS "tableName",
+		a.tableRemark AS "tableRemark",
+		a.deleteMode AS "deleteMode",
+		a.idField AS "idField",
+		a.idType AS "idType",
+		a.effectivenessField AS "effectivenessField",
+		a.effectivenessValue AS "effectivenessValue",
+		a.unEffectivenessValue AS "unEffectivenessValue",
+		a.packageName AS "packageName",
+		a.moduleName AS "moduleName",
+		a.moduleRemark AS "moduleRemark",
+		a.author AS "author",
+		a.controllerWebPath AS "controllerWebPath",
+		a.controllerJsonPath AS "controllerJsonPath",
+		a.controllerWebName AS "controllerWebName",
+		a.controllerWebTag AS "controllerWebTag",
+		a.controllerJsonTag AS "controllerJsonTag",
+		a.controllerJsonName AS "controllerJsonName",
+		a.serviceImplName AS "serviceImplName",
+		a.serviceName AS "serviceName",
+		a.serviceTag AS "serviceTag",
+		a.daoName AS "daoName",
+		a.daoTag AS "daoTag",
+		a.mapperFloderName AS "mapperFloderName",
+		a.mapperFileName AS "mapperFileName",
+		a.jspListName AS "jspListName",
+		a.jspEditName AS "jspEditName",
+		a.createDate AS "createDate",
+		a.updateDate AS "updateDate",
+		a.validateType AS "validateType",
+		a.moduleType AS "moduleType",
+		a.effectivenessType AS "effectivenessType",
+		a.entityAlias AS "entityAlias",
+		a.entityName AS "entityName",
+		a.listModule AS "listModule"
+	</sql>
+	<!-- 详情的列名 -->
+	<sql id="detailColumns">
+		a.id AS "id",
+		a.tableType AS "tableType",
+		a.parentField AS "parentField",
+		a.childField AS "childField",
+		a.nameField AS "nameField",
+		a.valueField AS "valueField",
+		a.parentTableId AS "parentTableId",
+		a.childTableField AS "childTableField",
+		a.tableName AS "tableName",
+		a.tableRemark AS "tableRemark",
+		a.deleteMode AS "deleteMode",
+		a.idField AS "idField",
+		a.idType AS "idType",
+		a.effectivenessField AS "effectivenessField",
+		a.effectivenessValue AS "effectivenessValue",
+		a.unEffectivenessValue AS "unEffectivenessValue",
+		a.packageName AS "packageName",
+		a.moduleName AS "moduleName",
+		a.moduleRemark AS "moduleRemark",
+		a.author AS "author",
+		a.controllerWebPath AS "controllerWebPath",
+		a.controllerJsonPath AS "controllerJsonPath",
+		a.controllerWebName AS "controllerWebName",
+		a.controllerWebTag AS "controllerWebTag",
+		a.controllerJsonTag AS "controllerJsonTag",
+		a.controllerJsonName AS "controllerJsonName",
+		a.serviceImplName AS "serviceImplName",
+		a.serviceName AS "serviceName",
+		a.serviceTag AS "serviceTag",
+		a.daoName AS "daoName",
+		a.daoTag AS "daoTag",
+		a.mapperFloderName AS "mapperFloderName",
+		a.mapperFileName AS "mapperFileName",
+		a.jspListName AS "jspListName",
+		a.jspEditName AS "jspEditName",
+		a.createDate AS "createDate",
+		a.updateDate AS "updateDate",
+		a.validateType AS "validateType",
+		a.moduleType AS "moduleType",
+		a.effectivenessType AS "effectivenessType",
+		a.entityAlias AS "entityAlias",
+		a.entityName AS "entityName",
+		a.listModule AS "listModule"
+	</sql>
+	<!-- 表名,可能查询时会和一些其他的表关联 -->
+	<sql id="tables">
+		t_polar_tables a
+	</sql>
+	<!-- 表名,单表表名 -->
+	<sql id="table">
+		t_polar_tables
+	</sql>
+	<!-- 查询多条数据时的条件 -->
+	<sql id="searchMultiWheres">
+		<where>
+			<if test="id != null">
+				AND a.id=#{id}
+			</if>
+
+			<if test="parentTableId != null and parentTableId !=''">
+				AND a.parentTableId=#{parentTableId}
+			</if>
+			<if test="tableName != null and tableName !=''">
+				AND (
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						a.tableName LIKE '%'+#{tableName}+'%'
+						or a.tableRemark LIKE '%'+#{tableName}+'%'
+					</when>
+					<otherwise>
+						a.tableName LIKE concat('%',#{tableName},'%')
+						or a.tableRemark LIKE concat('%',#{tableName},'%')
+					</otherwise>
+				</choose>
+				)
+			</if>
+			<if test="deleteMode != null and deleteMode!=0">
+				AND a.deleteMode=#{deleteMode}
+			</if>
+			<if test="tableType != null">
+				AND a.tableType=#{tableType}
+			</if>
+			<if test="idField != null and idField !=''">
+				AND a.idField=#{idField}
+			</if>
+			<if test="idType != null and idType!=-1">
+				AND a.idType=#{idType}
+			</if>
+			<if test="effectivenessField != null and effectivenessField !=''">
+				AND a.effectivenessField=#{effectivenessField}
+			</if>
+			<if test="effectivenessValue != null and effectivenessValue !=''">
+				AND a.effectivenessValue=#{effectivenessValue}
+			</if>
+			<if test="unEffectivenessValue != null and unEffectivenessValue !=''">
+				AND a.unEffectivenessValue=#{unEffectivenessValue}
+			</if>
+			<if test="packageName != null and packageName !=''">
+				AND a.packageName LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{packageName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{packageName},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="moduleName != null and moduleName !=''">
+				AND (a.moduleName LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{moduleName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{moduleName},'%')
+					</otherwise>
+				</choose>
+				or a.moduleRemark LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{moduleName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{moduleName},'%')
+					</otherwise>
+				</choose>
+				)
+			</if>
+			<if test="author != null and author !=''">
+				AND a.author LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{author}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{author},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="controllerWebPath != null and controllerWebPath !=''">
+
+				AND (a.controllerWebPath LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{controllerWebPath}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{controllerWebPath},'%')
+					</otherwise>
+				</choose>
+				or a.controllerJsonPath LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{controllerWebPath}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{controllerWebPath},'%')
+					</otherwise>
+				</choose>
+				)
+			</if>
+			<if test="controllerWebName != null and controllerWebName !=''">
+				AND a.controllerWebName=#{controllerWebName}
+			</if>
+			<if test="controllerWebTag != null and controllerWebTag !=''">
+				AND a.controllerWebTag=#{controllerWebTag}
+			</if>
+			<if test="controllerJsonTag != null and controllerJsonTag !=''">
+				AND a.controllerJsonTag=#{controllerJsonTag}
+			</if>
+			<if test="controllerJsonName != null and controllerJsonName !=''">
+				AND a.controllerJsonName=#{controllerJsonName}
+			</if>
+			<if test="serviceImplName != null and serviceImplName !=''">
+				AND a.serviceImplName=#{serviceImplName}
+			</if>
+			<if test="serviceName != null and serviceName !=''">
+				AND a.serviceName=#{serviceName}
+			</if>
+			<if test="serviceTag != null and serviceTag !=''">
+				AND a.serviceTag=#{serviceTag}
+			</if>
+			<if test="daoName != null and daoName !=''">
+				AND a.daoName=#{daoName}
+			</if>
+			<if test="daoTag != null and daoTag !=''">
+				AND a.daoTag=#{daoTag}
+			</if>
+			<if test="mapperFloderName != null and mapperFloderName !=''">
+				AND a.mapperFloderName=#{mapperFloderName}
+			</if>
+			<if test="mapperFileName != null and mapperFileName !=''">
+				AND a.mapperFileName=#{mapperFileName}
+			</if>
+			<if test="jspListName != null and jspListName !=''">
+				AND a.jspListName=#{jspListName}
+			</if>
+			<if test="jspEditName != null and jspEditName !=''">
+				AND a.jspEditName=#{jspEditName}
+			</if>
+			<if test="listModule != null">
+				AND a.listModule=#{listModule}
+			</if>
+		</where>
+	</sql>
+	<!-- 查询单条数据时的条件 -->
+	<sql id="searchOneWheres">
+		<where>
+			<if test="id != null">
+				AND a.id=#{id}
+			</if>
+			<if test="tableName != null and tableName !=''">
+				AND (a.tableName LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{tableName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{tableName},'%')
+					</otherwise>
+				</choose>
+				or a.tableRemark LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{tableName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{tableName},'%')
+					</otherwise>
+				</choose>
+				)
+			</if>
+			<if test="listModule != null">
+				AND a.listModule=#{listModule}
+			</if>
+			<if test="deleteMode != null">
+				AND a.deleteMode=#{deleteMode}
+			</if>
+			<if test="idField != null and idField !=''">
+				AND a.idField=#{idField}
+			</if>
+			<if test="idType != null">
+				AND a.idType=#{idType}
+			</if>
+			<if test="effectivenessField != null and effectivenessField !=''">
+				AND a.effectivenessField=#{effectivenessField}
+			</if>
+			<if test="effectivenessValue != null and effectivenessValue !=''">
+				AND a.effectivenessValue=#{effectivenessValue}
+			</if>
+			<if test="unEffectivenessValue != null and unEffectivenessValue !=''">
+				AND a.unEffectivenessValue=#{unEffectivenessValue}
+			</if>
+			<if test="packageName != null and packageName !=''">
+				AND a.packageName LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{packageName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{packageName},'%')
+					</otherwise>
+				</choose>
+
+			</if>
+			<if test="moduleName != null and moduleName !=''">
+				AND a.moduleName LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{moduleName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{moduleName},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="moduleRemark != null and moduleRemark !=''">
+				AND a.moduleRemark LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{moduleRemark}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{moduleRemark},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="author != null and author !=''">
+				AND a.author LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{author}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{author},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="controllerWebPath != null and controllerWebPath !=''">
+				AND a.controllerWebPath=#{controllerWebPath}
+			</if>
+			<if test="controllerJsonPath != null and controllerJsonPath !=''">
+				AND a.controllerJsonPath=#{controllerJsonPath}
+			</if>
+			<if test="controllerWebName != null and controllerWebName !=''">
+				AND a.controllerWebName=#{controllerWebName}
+			</if>
+			<if test="controllerWebTag != null and controllerWebTag !=''">
+				AND a.controllerWebTag=#{controllerWebTag}
+			</if>
+			<if test="controllerJsonTag != null and controllerJsonTag !=''">
+				AND a.controllerJsonTag=#{controllerJsonTag}
+			</if>
+			<if test="controllerJsonName != null and controllerJsonName !=''">
+				AND a.controllerJsonName=#{controllerJsonName}
+			</if>
+			<if test="serviceImplName != null and serviceImplName !=''">
+				AND a.serviceImplName=#{serviceImplName}
+			</if>
+			<if test="serviceName != null and serviceName !=''">
+				AND a.serviceName=#{serviceName}
+			</if>
+			<if test="serviceTag != null and serviceTag !=''">
+				AND a.serviceTag=#{serviceTag}
+			</if>
+			<if test="daoName != null and daoName !=''">
+				AND a.daoName=#{daoName}
+			</if>
+			<if test="daoTag != null and daoTag !=''">
+				AND a.daoTag=#{daoTag}
+			</if>
+			<if test="mapperFloderName != null and mapperFloderName !=''">
+				AND a.mapperFloderName=#{mapperFloderName}
+			</if>
+			<if test="mapperFileName != null and mapperFileName !=''">
+				AND a.mapperFileName=#{mapperFileName}
+			</if>
+			<if test="jspListName != null and jspListName !=''">
+				AND a.jspListName=#{jspListName}
+			</if>
+			<if test="jspEditName != null and jspEditName !=''">
+				AND a.jspEditName=#{jspEditName}
+			</if>
+		</where>
+	</sql>
+	<!-- 排序条件 -->
+	<sql id="orderCondition">
+		<choose>
+			<when test="sort !=null and sort !=''">
+				order by
+				<choose>
+					<when test="sort=='tableName'">a.tableName ${order}</when>
+					<when test="sort=='tableRemark'">a.tableRemark ${order}</when>
+					<when test="sort=='deleteMode'">a.deleteMode ${order}</when>
+					<when test="sort=='controllerWebPath'">a.controllerWebPath ${order}</when>
+					<when test="sort=='controllerJsonPath'">a.controllerJsonPath ${order}</when>
+					<when test="sort=='createDate'">a.createDate ${order}</when>
+					<when test="sort=='updateDate'">a.updateDate ${order}</when>
+					<when test="sort=='author'">a.author ${order}</when>
+					<when test="sort=='tableType'">a.tableType ${order}</when>
+					<!--默认排序，条件都不满足时，使用此条件，其兼容sqlserver的排序 -->
+					<otherwise>(select 0)</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						order by (SELECT 0)
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+	</sql>
+	<!-- 删除条件(物理删除的删除条件) -->
+	<sql id="deletePhysicalWheres">
+		WHERE 1!=1
+		<trim prefix="OR" prefixOverrides="AND">
+			<if test="id != null">
+				AND id = #{id}
+			</if>
+			<if test="tableName != null and tableName != ''">
+				AND tableName LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{tableName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{tableName},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="tableRemark != null and tableRemark != ''">
+				AND tableRemark LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{tableRemark}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{tableRemark},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="deleteMode != null">
+				AND deleteMode = #{deleteMode}
+			</if>
+			<if test="idField != null and idField != ''">
+				AND idField = #{idField}
+			</if>
+			<if test="author != null and author != ''">
+				AND author LIKE
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{author}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{author},'%')
+					</otherwise>
+				</choose>
+			</if>
+			<if test="idType != null">
+				AND deleteMode = #{idType}
+			</if>
+		</trim>
+	</sql>
+	<insert id="insert" parameterType="java.util.Map"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		<include refid="table" />
+		(	
+			tableType,
+			parentField,
+			childField,
+			nameField,
+			valueField,
+			parentTableId,
+			childTableField,
+			tableName,
+			tableRemark,
+			deleteMode,
+			idField,
+			idType,
+			effectivenessField,
+			effectivenessValue,
+			unEffectivenessValue,
+			packageName,
+			moduleName,
+			moduleRemark,
+			author,
+			controllerWebPath,
+			controllerJsonPath,
+			controllerWebName,
+			controllerWebTag,
+			controllerJsonTag,
+			controllerJsonName,
+			serviceImplName,
+			serviceName,
+			serviceTag,
+			daoName,
+			daoTag,
+			mapperFloderName,
+			mapperFileName,
+			jspListName,
+			jspEditName,
+			createDate,
+			updateDate,
+			validateType,
+			moduleType,
+			effectivenessType,
+			entityAlias,
+			entityName,
+			listModule
+		) VALUES (
+			#{tableType},
+			#{parentField},
+			#{childField},
+			#{nameField},
+			#{valueField},
+			#{parentTableId},
+			#{childTableField},
+			#{tableName},
+			#{tableRemark},
+			#{deleteMode},
+			#{idField},
+			#{idType},
+			#{effectivenessField},
+			#{effectivenessValue},
+			#{unEffectivenessValue},
+			#{packageName},
+			#{moduleName},
+			#{moduleRemark},
+			#{author},
+			#{controllerWebPath},
+			#{controllerJsonPath},
+			#{controllerWebName},
+			#{controllerWebTag},
+			#{controllerJsonTag},
+			#{controllerJsonName},
+			#{serviceImplName},
+			#{serviceName},
+			#{serviceTag},
+			#{daoName},
+			#{daoTag},
+			#{mapperFloderName},
+			#{mapperFileName},
+			#{jspListName},
+			#{jspEditName},
+			#{createDate},
+			#{updateDate},
+			#{validateType},
+			#{moduleType},
+			#{effectivenessType},
+			#{entityAlias},
+			#{entityName},
+			#{listModule}
+		)
+	</insert>
+	<!-- 查询一条数据(依据数据编号) -->
+	<select id="selectOneById" resultType="CodeEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		where a.id=#{id}
+	</select>
+	<!-- 查询一条数据（依据查询条件） -->
+	<select id="selectOneByCondition" resultType="CodeEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchOneWheres" />
+	</select>
+	<!-- 查询集合 -->
+	<select id="selectList" resultType="CodeEntity"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="listColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+		<include refid="orderCondition" />
+	</select>
+	<!-- 查询带有分页的列表 -->
+	<select id="selectPageList" resultType="CodeEntity"
+		parameterType="java.util.Map">
+		<choose>
+			<when test="'${polar_dataBaseType}' == 'oracle'">
+				SELECT * FROM (
+				select rownum rowsize,innertable.* from
+				(
+				SELECT <include refid="listColumns" />
+				FROM <include refid="tables" />
+				<include refid="searchMultiWheres" />
+				<include refid="orderCondition" />
+				) innertable
+				)
+				WHERE rowsize > #{pageStartNumber} and rowsize &lt;= #{pageOffsetNumber}
+			</when>
+			<when test="'${polar_dataBaseType}' == 'sqlServer'">
+				SELECT TOP ${rows} A.*
+				FROM
+				(
+				SELECT
+				ROW_NUMBER() OVER (<include refid="orderCondition" />) AS RowNumber,
+				<include refid="listColumns" />
+				FROM <include refid="tables" />
+				<include refid="searchMultiWheres" />
+				)   as A
+				WHERE RowNumber > #{pageStartNumber}
+			</when>
+			<otherwise>
+				SELECT
+				<include refid="listColumns" />
+				FROM
+				<include refid="tables" />
+				<include refid="searchMultiWheres" />
+				<include refid="orderCondition" />
+				limit #{pageStartNumber},#{pageOffsetNumber}
+			</otherwise>
+		</choose>
+	</select>
+	<!-- 依据条件查询符合条件的数量 -->
+	<select id="selectCount" resultType="long" parameterType="java.util.Map">
+		SELECT count(a.id)
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+	</select>
+	<!-- 依据编号更新数据，所有字段都更新。 -->
+	<update id="updateAll" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		set
+			tableType=#{tableType},
+			parentField=#{parentField},
+			childField=#{childField},
+			nameField=#{nameField},
+			valueField=#{valueField},
+			parentTableId=#{parentTableId},
+			childTableField=#{childTableField},
+			tableName=#{tableName},
+			tableRemark=#{tableRemark},
+			deleteMode=#{deleteMode},
+			idField=#{idField},
+			idType=#{idType},
+			effectivenessField=#{effectivenessField},
+			effectivenessValue=#{effectivenessValue},
+			unEffectivenessValue=#{unEffectivenessValue},
+			packageName=#{packageName},
+			moduleName=#{moduleName},
+			moduleRemark=#{moduleRemark},
+			author=#{author},
+			controllerWebPath=#{controllerWebPath},
+			controllerJsonPath=#{controllerJsonPath},
+			controllerWebName=#{controllerWebName},
+			controllerWebTag=#{controllerWebTag},
+			controllerJsonTag=#{controllerJsonTag},
+			controllerJsonName=#{controllerJsonName},
+			serviceImplName=#{serviceImplName},
+			serviceName=#{serviceName},
+			serviceTag=#{serviceTag},
+			daoName=#{daoName},
+			daoTag=#{daoTag},
+			mapperFloderName=#{mapperFloderName},
+			mapperFileName=#{mapperFileName},
+			jspListName=#{jspListName},
+			jspEditName=#{jspEditName},
+			updateDate=#{updateDate},
+			validateType=#{validateType},
+			moduleType=#{moduleType},
+			effectivenessType=#{effectivenessType},
+			entityAlias=#{entityAlias},
+			entityName=#{entityName},
+			listModule=#{listModule}
+		where id=#{id}
+	</update>
+	<!-- 依据编号更新数据，更新存在的字段。 -->
+	<update id="updateField" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		<trim prefix="set" prefixOverrides=",">
+			<if test="_parameter.containsKey('tableName')">
+				,tableName=#{tableName}
+			</if>
+			<if test="_parameter.containsKey('validateType')">
+				,validateType=#{validateType}
+			</if>
+			<if test="_parameter.containsKey('moduleType')">
+				,moduleType=#{moduleType}
+			</if>
+			<if test="_parameter.containsKey('tableRemark')">
+				,tableRemark=#{tableRemark}
+			</if>
+			<if test="_parameter.containsKey('deleteMode')">
+				,deleteMode=#{deleteMode}
+			</if>
+			<if test="_parameter.containsKey('idField')">
+				,idField=#{idField}
+			</if>
+			<if test="_parameter.containsKey('idType')">
+				,idType=#{idType}
+			</if>
+			<if test="_parameter.containsKey('effectivenessField')">
+				,effectivenessField=#{effectivenessField}
+			</if>
+			<if test="_parameter.containsKey('effectivenessValue')">
+				,effectivenessValue=#{effectivenessValue}
+			</if>
+			<if test="_parameter.containsKey('unEffectivenessValue')">
+				,unEffectivenessValue=#{unEffectivenessValue}
+			</if>
+			<if test="_parameter.containsKey('packageName') ">
+				,packageName=#{packageName}
+			</if>
+			<if test="_parameter.containsKey('moduleName')">
+				,moduleName=#{moduleName}
+			</if>
+			<if test="_parameter.containsKey('moduleRemark')">
+				,moduleRemark=#{moduleRemark}
+			</if>
+			<if test="_parameter.containsKey('author')">
+				,author=#{author}
+			</if>
+			<if test="_parameter.containsKey('controllerWebPath')">
+				,controllerWebPath=#{controllerWebPath}
+			</if>
+			<if test="_parameter.containsKey('controllerJsonPath')">
+				,controllerJsonPath=#{controllerJsonPath}
+			</if>
+			<if test="_parameter.containsKey('controllerWebName')">
+				,controllerWebName=#{controllerWebName}
+			</if>
+			<if test="_parameter.containsKey('controllerWebTag')">
+				,controllerWebTag=#{controllerWebTag}
+			</if>
+			<if test="_parameter.containsKey('controllerJsonTag')">
+				,controllerJsonTag=#{controllerJsonTag}
+			</if>
+			<if test="_parameter.containsKey('controllerJsonName')">
+				,controllerJsonName=#{controllerJsonName}
+			</if>
+			<if test="_parameter.containsKey('serviceImplName')">
+				,serviceImplName=#{serviceImplName}
+			</if>
+			<if test="_parameter.containsKey('serviceName')">
+				,serviceName=#{serviceName}
+			</if>
+			<if test="_parameter.containsKey('serviceTag')">
+				,serviceTag=#{serviceTag}
+			</if>
+			<if test="_parameter.containsKey('daoName')">
+				,daoName=#{daoName}
+			</if>
+			<if test="_parameter.containsKey('daoTag') ">
+				,daoTag=#{daoTag}
+			</if>
+			<if test="_parameter.containsKey('mapperFloderName')">
+				,mapperFloderName=#{mapperFloderName}
+			</if>
+			<if test="_parameter.containsKey('mapperFileName')">
+				,mapperFileName=#{mapperFileName}
+			</if>
+			<if test="_parameter.containsKey('jspListName')">
+				,jspListName=#{jspListName}
+			</if>
+			<if test="_parameter.containsKey('jspEditName')">
+				,jspEditName=#{jspEditName}
+			</if>
+			<if test="_parameter.containsKey('createDate') ">
+				,createDate=#{createDate}
+			</if>
+			<if test="_parameter.containsKey('updateDate')">
+				,updateDate=#{updateDate}
+			</if>
+			<if test="_parameter.containsKey('listModule')">
+				,listModule=#{listModule}
+			</if>
+			
+		</trim>
+		where id=#{id}
+	</update>
+	<!-- 依据编号物理删除 -->
+	<delete id="deleteByIdPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		where id=#{id}
+	</delete>
+
+	<!-- 依据条件物理删除 -->
+	<delete id="deleteByConditionPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		<include refid="deletePhysicalWheres" />
+	</delete>
+	
+	<!-- 以下为列属性sql语句 -->
+	<!-- 增加列属性 -->
+	<insert id="insertColumns" parameterType="CodeColumn">
+		INSERT INTO t_polar_columns(
+			name,
+			type,
+			groupName,
+			javaName,
+			remark,
+			search,
+			listShown,
+			innerEdit,
+			required,
+			tableId,
+			orderBy,
+			phone,
+			email,
+		<choose>
+			<when test="'${polar_dataBaseType}' == 'sqlServer'">
+				"identity",
+			</when>
+			<otherwise>
+				identity,
+			</otherwise>
+		</choose>
+
+			commont,
+			orderNum,
+			listReturn,
+			matchStyle
+		)VALUES(
+			#{name},
+			#{type},
+			#{groupName},
+			#{javaName},
+			#{remark},
+			#{search},
+			#{listShown},
+			#{innerEdit},
+			#{required},
+			#{tableId},
+			#{orderBy},
+			#{phone},
+			#{email},
+			#{identity},
+			#{commont},
+			#{orderNum},
+			#{listReturn},
+			#{matchStyle}
+		)
+	</insert>
+	<!-- 查询列属性 -->
+	<select id="selectColumns" parameterType="long" resultType="CodeColumn">
+		<choose>
+			<when test="'${polar_dataBaseType}' == 'sqlServer'">
+				select 
+					"listReturn","name","type","groupName","javaName","remark","search","listShown","innerEdit","required","tableId","orderBy","phone","email","identity","commont","orderNum","matchStyle"
+					from t_polar_columns
+					where tableId=#{tableId}
+					order by orderNum
+			</when>	
+			<when test="'${polar_dataBaseType}' == 'oracle'">
+			</when>	
+			<otherwise>
+				select 
+					a.listReturn,a.name,a.type,a.groupName,a.javaName,a.remark,a.search,a.listShown,a.innerEdit,a.required,a.tableId,a.orderBy,a.phone,a.email,a.identity,a.commont,a.orderNum,a.matchStyle
+					from t_polar_columns a
+					where a.tableId=#{tableId}
+					order by a.orderNum
+			</otherwise>
+		</choose>
+	
+	</select>
+	<!-- 查询列属性 -->
+	<delete id="deleteColumns" parameterType="long">
+	    delete from t_polar_columns
+	    where tableId=#{tableId}
+	</delete>
+	
+	<!-- 查询表的属性 -->
+	<select id="selectColumnsFromTable" parameterType="string" resultType="polar.island.inlay.code.entity.JdbcType">
+
+		<choose>
+			<when test="'${polar_dataBaseType}' == 'sqlServer'">
+				SELECT
+				B.name AS name,
+				C.value AS column_description,
+				t.DATA_TYPE as type,
+				(CASE WHEN t.IS_NULLABLE = 'YES' THEN 0 ELSE 1 END ) AS required
+				FROM sys.tables A
+				INNER JOIN sys.columns B ON B.object_id = A.object_id
+				LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id AND C.minor_id = B.column_id
+				Left join information_schema.COLUMNS t
+				on A.name=t.TABLE_NAME and B.name=t.COLUMN_NAME
+				WHERE A.name = #{tableName}
+			</when>
+			<when test="'${polar_dataBaseType}' == 'oracle'">
+			</when>
+			<otherwise>
+				SELECT
+				t.COLUMN_NAME AS name, (CASE WHEN t.IS_NULLABLE = 'YES' THEN 0 ELSE 1 END ) AS required,t.COLUMN_COMMENT AS commonts,
+				t.COLUMN_TYPE AS type
+				FROM information_schema.COLUMNS t
+				WHERE
+				t.TABLE_SCHEMA = (SELECT DATABASE()) AND t.TABLE_NAME = #{tableName}
+				ORDER BY t.ORDINAL_POSITION
+			</otherwise>
+		</choose>
+
+
+	</select>
+	<!-- 查询表的主键 -->
+	<select id="selectPkFromTable" parameterType="string" resultType="java.util.Map">
+
+		<choose>
+			<when test="'${polar_dataBaseType}' == 'sqlServer'">
+				select b.column_name as name,c.DATA_TYPE as type
+				from information_schema.table_constraints a
+				left join information_schema.constraint_column_usage b
+				on a.constraint_name = b.constraint_name
+				left join information_schema.COLUMNS c
+				on a.TABLE_NAME=c.TABLE_NAME and b.COLUMN_NAME=c.COLUMN_NAME
+				where a.constraint_type = 'PRIMARY KEY' and a.table_name =  #{tableName}
+			</when>
+			<when test="'${polar_dataBaseType}' == 'oracle'">
+			</when>
+			<otherwise>
+				SELECT au.COLUMN_NAME AS name,au.COLUMN_TYPE AS type
+				FROM information_schema.COLUMNS au
+				WHERE au.TABLE_SCHEMA = (select database())
+				AND au.COLUMN_KEY='PRI' AND au.TABLE_NAME = #{tableName}
+			</otherwise>
+		</choose>
+
+	</select>
+
+	<select id="allTableNames"  resultType="java.util.Map">
+
+		<choose>
+			<when test="'${polar_dataBaseType}' == 'sqlServer'">
+				SELECT
+				A.name as name,C.value as comments
+				FROM sys.tables A
+				LEFT JOIN sys.extended_properties C ON C.major_id = A.object_id
+				where C.minor_id=0
+				and A.name not in(
+					SELECT
+					tableName
+					FROM
+					t_polar_tables
+				)
+				AND A.name NOT LIKE 't_polar%'
+				ORDER BY
+				A.name
+			</when>
+			<when test="'${polar_dataBaseType}' == 'oracle'">
+			</when>
+			<otherwise>
+				SELECT
+				t.table_name AS name,
+				t.TABLE_COMMENT AS comments
+				FROM
+					information_schema.`TABLES` t
+				WHERE
+					t.TABLE_SCHEMA = (SELECT DATABASE())
+				  AND t.table_name NOT IN (
+					SELECT
+					tableName
+					FROM
+					t_polar_tables
+				  )
+				AND t.table_name NOT LIKE 't_polar%'
+				ORDER BY
+				t.TABLE_NAME
+			</otherwise>
+		</choose>
+
+	</select>
+</mapper>

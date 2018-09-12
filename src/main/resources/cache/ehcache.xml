@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache updateCheck="false" name="ehcache"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" >
+
+	<diskStore path="/home/enge/cache" />
+
+	<!-- maxEntriesLocalHeap:堆内存中最大缓存对象数，0没有限制
+		 maxEntriesLocalDisk:磁盘中的最大对象数，默认为0不限制 
+		 eternal:elements是否永久有效，如果为true，timeouts将被忽略，element将永不过期
+		 diskPersistent：设定在虚拟机重启时是否进行磁盘存储，默认为false 
+	-->
+	<!-- 默认缓存配置. -->
+	<defaultCache maxEntriesLocalHeap="100" eternal="false"
+		timeToIdleSeconds="300" timeToLiveSeconds="600" overflowToDisk="true"
+		maxEntriesLocalDisk="0" >
+	</defaultCache>
+	<!-- 字典缓存 -->
+	<cache name="dictCache" maxEntriesLocalHeap="100" eternal="true" maxElementsInMemory="1000" maxEntriesLocalDisk="0" clearOnFlush="true"
+		 diskPersistent="true" timeToLiveSeconds="0" timeToIdleSeconds="0" diskExpiryThreadIntervalSeconds="0">
+	</cache>
+	<!-- 树结构缓存 -->
+	<cache name="treeCache" maxEntriesLocalHeap="100" eternal="true" maxElementsInMemory="1000" maxEntriesLocalDisk="0" clearOnFlush="true"
+		 diskPersistent="true" timeToLiveSeconds="0" timeToIdleSeconds="0" diskExpiryThreadIntervalSeconds="0" />
+	<!-- 菜单缓存 -->
+	<cache name="menuCache" maxEntriesLocalHeap="100" eternal="true" maxElementsInMemory="1000" maxEntriesLocalDisk="0" clearOnFlush="true"
+		 diskPersistent="true" timeToLiveSeconds="0" timeToIdleSeconds="0" diskExpiryThreadIntervalSeconds="0">
+	</cache>
+</ehcache>

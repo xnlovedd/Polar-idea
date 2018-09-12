@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="polar.island.inlay.org.dao.OrgDao">
+	<!-- 列表的列名 -->
+	<sql id="listColumns">
+			a.id AS "id",
+			
+			a.name AS "name",
+			a.parentId AS "parentId",
+			a.org_code AS "orgCode",
+			a.contact_people AS "contactPeople",
+			a.contact_phone AS "contactPhone",
+			a.contact_email AS "contactEmail"
+	</sql>
+	<!-- 详情的列名 -->
+	<sql id="detailColumns">
+			a.id AS "id",
+			
+			a.name AS "name",
+			a.parentId AS "parentId",
+			a.org_code AS "orgCode",
+			a.org_describe AS "orgDescribe",
+			a.contact_people AS "contactPeople",
+			a.contact_phone AS "contactPhone",
+			a.contact_email AS "contactEmail"
+	</sql>
+	<!-- 表名,可能查询时会和一些其他的表关联 -->
+	<sql id="tables">
+		t_polar_org a
+	</sql>
+	<!-- 表名 -->
+	<sql id="table">
+		t_polar_org
+	</sql>
+	<!-- 查询多条数据时的条件 -->
+	<sql id="searchMultiWheres">
+		<where>
+            <if test="id != null and id != ''">
+                AND a.id=#{id}
+            </if>
+			<if test="name != null and name != ''">
+					AND a.name like
+					<choose>
+                        <when test="'${polar_dataBaseType}' == 'sqlServer'">
+                            '%'+#{name}+'%'
+                        </when>
+                        <otherwise>
+                            concat('%',#{name},'%')
+                        </otherwise>
+                    </choose>
+            </if>
+			<if test="parentId != null">
+                    AND a.parentId=#{parentId}
+            </if>
+			<if test="orgCode != null and orgCode != ''">
+                    AND a.org_code=#{orgCode}
+            </if>
+			<if test="orgDescribe != null and orgDescribe != ''">
+                    AND a.org_describe=#{orgDescribe}
+            </if>
+			<if test="contactPeople != null and contactPeople != ''">
+                    AND a.contact_people=#{contactPeople}
+            </if>
+			<if test="contactPhone != null and contactPhone != ''">
+                    AND a.contact_phone=#{contactPhone}
+            </if>
+			<if test="contactEmail != null and contactEmail != ''">
+                    AND a.contact_email=#{contactEmail}
+            </if>
+		</where>
+	</sql>
+	<!-- 查询单条数据时的条件 -->
+	<sql id="searchOneWheres">
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id=#{id}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name=#{name}
+			</if>
+			<if test="parentId != null">
+				AND a.parentId=#{parentId}
+			</if>
+			<if test="orgCode != null and orgCode != ''">
+				AND a.org_code=#{orgCode}
+			</if>
+			<if test="orgDescribe != null and orgDescribe != ''">
+				AND a.org_describe=#{orgDescribe}
+			</if>
+			<if test="contactPeople != null and contactPeople != ''">
+				AND a.contact_people=#{contactPeople}
+			</if>
+			<if test="contactPhone != null and contactPhone != ''">
+				AND a.contact_phone=#{contactPhone}
+			</if>
+			<if test="contactEmail != null and contactEmail != ''">
+				AND a.contact_email=#{contactEmail}
+			</if>
+		</where>
+	</sql>	
+	<!-- 排序条件 -->
+	<sql id="orderCondition">
+        order by a.parentId asc
+	</sql>
+	<!-- 删除条件(物理删除的删除条件) -->
+	<sql id="deletePhysicalWheres">
+		WHERE 1!=1
+		<trim prefix="OR" prefixOverrides="AND">
+			<if test="id != null and id != ''">
+				AND id=#{id}
+			</if>
+				<if test="name != null and name != ''">
+					AND name=#{name}
+				</if>
+				<if test="parentId != null">
+					AND parentId=#{parentId}
+				</if>
+				<if test="orgCode != null and orgCode != ''">
+					AND org_code=#{orgCode}
+				</if>
+				<if test="orgDescribe != null and orgDescribe != ''">
+					AND org_describe=#{orgDescribe}
+				</if>
+				<if test="contactPeople != null and contactPeople != ''">
+					AND contact_people=#{contactPeople}
+				</if>
+				<if test="contactPhone != null and contactPhone != ''">
+					AND contact_phone=#{contactPhone}
+				</if>
+				<if test="contactEmail != null and contactEmail != ''">
+					AND contact_email=#{contactEmail}
+				</if>
+		</trim>
+	</sql>
+	<insert id="insert" parameterType="java.util.Map"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		<include refid="table" />
+		(
+			name,
+			parentId,
+			org_code,
+			org_describe,
+			contact_people,
+			contact_phone,
+			contact_email
+		) VALUES (
+			#{name},
+			#{parentId},
+			#{orgCode},
+			#{orgDescribe},
+			#{contactPeople},
+			#{contactPhone},
+			#{contactEmail}
+		)
+	</insert>
+	<!-- 查询一条数据(依据数据编号) -->
+	<select id="selectOneById" resultType="OrgEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		where a.id=#{id}
+	</select>
+	<!-- 查询一条数据（依据查询条件） -->
+	<select id="selectOneByCondition" resultType="OrgEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchOneWheres" />
+	</select>
+	<!-- 查询集合 -->
+	<select id="selectList" resultType="OrgEntity"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="listColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+		<include refid="orderCondition" />
+	</select>
+    <!-- 查询全部集合 -->
+    <select id="selectAllList" resultType="OrgEntity"
+            parameterType="java.util.Map">
+        SELECT
+        <include refid="listColumns" />
+        FROM
+        <include refid="tables" />
+        <include refid="searchMultiWheres" />
+        order by a.parentId asc
+    </select>
+	<!-- 查询导出数据集合 -->
+	<select id="selectExportList" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+		<include refid="orderCondition" />
+	</select>
+	<!-- 查询带有分页的列表 -->
+	<select id="selectPageList" resultType="OrgEntity"
+		parameterType="java.util.Map">
+        <choose>
+            <when test="'${polar_dataBaseType}' == 'oracle'">
+                SELECT * FROM (
+                select rownum rowsize,innertable.* from
+                (
+                SELECT <include refid="listColumns" />
+                FROM <include refid="tables" />
+                <include refid="searchMultiWheres" />
+                <include refid="orderCondition" />
+                ) innertable
+                )
+                WHERE rowsize > #{pageStartNumber} and rowsize &lt;= #{pageOffsetNumber}
+            </when>
+            <when test="'${polar_dataBaseType}' == 'sqlServer'">
+                SELECT TOP ${rows} A.*
+                FROM
+                (
+                SELECT
+                ROW_NUMBER() OVER (<include refid="orderCondition" />) AS RowNumber,
+                <include refid="listColumns" />
+                FROM <include refid="tables" />
+                <include refid="searchMultiWheres" />
+                )   as A
+                WHERE RowNumber > #{pageStartNumber}
+            </when>
+            <otherwise>
+                SELECT
+                <include refid="listColumns" />
+                FROM
+                <include refid="tables" />
+                <include refid="searchMultiWheres" />
+                <include refid="orderCondition" />
+                limit #{pageStartNumber},#{pageOffsetNumber}
+            </otherwise>
+        </choose>
+
+
+	</select>
+	<!-- 依据条件查询符合条件的数量 -->
+	<select id="selectCount" resultType="long" parameterType="java.util.Map">
+		SELECT count(a.id)
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+	</select>
+	<!-- 依据编号更新数据，所有字段都更新。 -->
+	<update id="updateAll" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		set
+			name=#{name},
+			parentId=#{parentId},
+			org_describe=#{orgDescribe},
+			contact_people=#{contactPeople},
+			contact_phone=#{contactPhone},
+			contact_email=#{contactEmail}
+		where id=#{id}
+	</update>
+	<!-- 依据编号更新数据，更新存在的字段,有效性字段也可更新。 -->
+	<update id="updateField" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		<trim prefix="set" prefixOverrides=",">
+				<if test="_parameter.containsKey('name')">
+					,name=#{name}
+				</if>
+				<if test="_parameter.containsKey('parentId')">
+					,parentId=#{parentId}
+				</if>
+				<if test="_parameter.containsKey('orgDescribe')">
+					,org_describe=#{orgDescribe}
+				</if>
+				<if test="_parameter.containsKey('contactPeople')">
+					,contact_people=#{contactPeople}
+				</if>
+				<if test="_parameter.containsKey('contactPhone')">
+					,contact_phone=#{contactPhone}
+				</if>
+				<if test="_parameter.containsKey('contactEmail')">
+					,contact_email=#{contactEmail}
+				</if>
+		</trim>
+		where id=#{id}
+	</update>
+	<!-- 依据编号物理删除 -->
+	<delete id="deleteByIdPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		where id=#{id}
+	</delete>
+	<!-- 依据条件物理删除 -->
+	<delete id="deleteByConditionPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		<include refid="deletePhysicalWheres" />
+	</delete>
+</mapper>

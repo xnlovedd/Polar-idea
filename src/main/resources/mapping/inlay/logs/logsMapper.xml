@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="polar.island.inlay.logs.dao.LogsDao">
+	<!-- 列表的列名 -->
+	<sql id="listColumns">
+			a.id AS "id",
+			a.userId AS "userId",
+			a.createTime AS "createTime",
+			a.interfaceName AS "interfaceName",
+			a.message AS "message"
+	</sql>
+	<!-- 详情的列名 -->
+	<sql id="detailColumns">
+			a.id AS "id",
+			a.userId AS "userId",
+			a.createTime AS "createTime",
+			a.interfaceName AS "interfaceName",
+			a.message AS "message",
+			a.caseBy AS "caseBy",
+			a.createTimeMillions AS "createTimeMillions"
+	</sql>
+	<!-- 表名,可能查询时会和一些其他的表关联 -->
+	<sql id="tables">
+		t_polar_logs a
+	</sql>
+	<!-- 表名 -->
+	<sql id="table">
+		t_polar_logs
+	</sql>
+	<!-- 查询多条数据时的条件 -->
+	<sql id="searchMultiWheres">
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id=#{id}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.userId=#{userId}
+			</if>
+			<if test="createTime != null">
+				AND a.createTime=#{createTime}
+			</if>
+			<if test="interfaceName != null and interfaceName != ''">
+				AND a.interfaceName like
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						'%'+#{interfaceName}+'%'
+					</when>
+					<otherwise>
+						concat('%',#{interfaceName},'%')
+					</otherwise>
+				</choose>
+
+			</if>
+			<if test="message != null and message != ''">
+				AND a.message=#{message}
+			</if>
+			<if test="caseBy != null and caseBy != ''">
+				AND a.caseBy=#{caseBy}
+			</if>
+			<if test="createTimeMillions != null">
+				AND a.createTimeMillions=#{createTimeMillions}
+			</if>
+			<if test="startTime != null">
+				AND a.createTimeMillions &gt;=#{startTime}
+			</if>
+			<if test="endTime != null">
+				AND a.createTimeMillions &lt;=#{endTime}
+			</if>
+		</where>
+	</sql>
+	<!-- 查询单条数据时的条件 -->
+	<sql id="searchOneWheres">
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id=#{id}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND a.userId=#{userId}
+			</if>
+			<if test="createTime != null">
+				AND a.createTime=#{createTime}
+			</if>
+			<if test="interfaceName != null and interfaceName != ''">
+				AND a.interfaceName=#{interfaceName}
+			</if>
+			<if test="message != null and message != ''">
+				AND a.message=#{message}
+			</if>
+			<if test="caseBy != null and caseBy != ''">
+				AND a.caseBy=#{caseBy}
+			</if>
+			<if test="createTimeMillions != null">
+				AND a.createTimeMillions=#{createTimeMillions}
+			</if>
+		</where>
+	</sql>	
+	<!-- 排序条件 -->
+	<sql id="orderCondition">
+		<choose>
+			<when test="sort !=null and sort !=''">
+				order by
+				<choose>
+					<when test="sort == 'createTime'">a.createTimeMillions ${order}</when>
+					<when test="sort=='message'">a.message ${order}</when>
+					<when test="sort=='interfaceName'">a.interfaceName ${order}</when>
+					<when test="sort=='userId'">a.userId ${order}</when>
+					<!--默认排序，条件都不满足时，使用此条件，其兼容sqlserver的排序 -->
+					<otherwise>(select 0)</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="'${polar_dataBaseType}' == 'sqlServer'">
+						order by (SELECT 0)
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+	</sql>
+	<!-- 删除条件(物理删除的删除条件) -->
+	<sql id="deletePhysicalWheres">
+		WHERE 1!=1
+		<trim prefix="OR" prefixOverrides="AND">
+			<if test="id != null and id != ''">
+				AND id=#{id}
+			</if>
+				<if test="userId != null and userId != ''">
+					AND userId=#{userId}
+				</if>
+				<if test="createTime != null">
+					AND createTime=#{createTime}
+				</if>
+				<if test="interfaceName != null and interfaceName != ''">
+					AND interfaceName=#{interfaceName}
+				</if>
+				<if test="message != null and message != ''">
+					AND message=#{message}
+				</if>
+				<if test="caseBy != null and caseBy != ''">
+					AND caseBy=#{caseBy}
+				</if>
+				<if test="createTimeMillions != null">
+					AND createTimeMillions=#{createTimeMillions}
+				</if>
+		</trim>
+	</sql>
+	<insert id="insert" parameterType="java.util.Map"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		<include refid="table" />
+		(
+
+			userId,
+			createTime,
+			interfaceName,
+			message,
+			caseBy,
+			createTimeMillions
+		) VALUES (
+
+			#{userId},
+			#{createTime},
+			#{interfaceName},
+			#{message},
+			#{caseBy},
+			#{createTimeMillions}
+		)
+	</insert>
+	<!-- 查询一条数据(依据数据编号) -->
+	<select id="selectOneById" resultType="LogsEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		where a.id=#{id}
+	</select>
+	<!-- 查询一条数据（依据查询条件） -->
+	<select id="selectOneByCondition" resultType="LogsEntity"
+		parameterType="string">
+		SELECT
+		<include refid="detailColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchOneWheres" />
+	</select>
+	<!-- 查询集合 -->
+	<select id="selectList" resultType="LogsEntity"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="listColumns" />
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+		<include refid="orderCondition" />
+	</select>
+	<!-- 查询带有分页的列表 -->
+	<select id="selectPageList" resultType="LogsEntity"
+		parameterType="java.util.Map">
+		<choose>
+			<when test="'${polar_dataBaseType}' == 'oracle'">
+				SELECT * FROM (
+				select rownum rowsize,innertable.* from
+				(
+				SELECT <include refid="listColumns" />
+				FROM <include refid="tables" />
+				<include refid="searchMultiWheres" />
+				<include refid="orderCondition" />
+				) innertable
+				)
+				WHERE rowsize > #{pageStartNumber} and rowsize &lt;= #{pageOffsetNumber}
+			</when>
+			<when test="'${polar_dataBaseType}' == 'sqlServer'">
+				SELECT TOP ${rows} A.*
+				FROM
+				(
+				SELECT
+				ROW_NUMBER() OVER (<include refid="orderCondition" />) AS RowNumber,
+				<include refid="listColumns" />
+				FROM <include refid="tables" />
+				<include refid="searchMultiWheres" />
+				)   as A
+				WHERE RowNumber > #{pageStartNumber}
+			</when>
+			<otherwise>
+				SELECT
+				<include refid="listColumns" />
+				FROM
+				<include refid="tables" />
+				<include refid="searchMultiWheres" />
+				<include refid="orderCondition" />
+				limit #{pageStartNumber},#{pageOffsetNumber}
+			</otherwise>
+		</choose>
+	</select>
+	<!-- 依据条件查询符合条件的数量 -->
+	<select id="selectCount" resultType="long" parameterType="java.util.Map">
+		SELECT count(a.id)
+		FROM
+		<include refid="tables" />
+		<include refid="searchMultiWheres" />
+	</select>
+	<!-- 依据编号更新数据，所有字段都更新。 -->
+	<update id="updateAll" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		set
+			userId=#{userId},
+			createTime=#{createTime},
+			interfaceName=#{interfaceName},
+			message=#{message},
+			caseBy=#{caseBy},
+			createTimeMillions=#{createTimeMillions}
+		where id=#{id}
+	</update>
+	<!-- 依据编号更新数据，更新存在的字段,有效性字段也可更新。 -->
+	<update id="updateField" parameterType="java.util.Map">
+		update
+		<include refid="table" />
+		<trim prefix="set" prefixOverrides=",">
+				<if test="_parameter.containsKey('userId')">
+					,userId=#{userId}
+				</if>
+				<if test="_parameter.containsKey('createTime')">
+					,createTime=#{createTime}
+				</if>
+				<if test=" _parameter.containsKey('interfaceName')">
+					,interfaceName=#{interfaceName}
+				</if>
+				<if test="_parameter.containsKey('message')">
+					,message=#{message}
+				</if>
+				<if test=" _parameter.containsKey('caseBy')">
+					,caseBy=#{caseBy}
+				</if>
+				<if test="_parameter.containsKey('createTimeMillions')">
+					,createTimeMillions=#{createTimeMillions}
+				</if>
+		</trim>
+		where id=#{id}
+	</update>
+	<!-- 依据编号物理删除 -->
+	<delete id="deleteByIdPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		where id=#{id}
+	</delete>
+	<!-- 依据条件物理删除 -->
+	<delete id="deleteByConditionPhysical" parameterType="string">
+		delete from
+		<include refid="table" />
+		<include refid="deletePhysicalWheres" />
+	</delete>
+</mapper>
